@@ -1,7 +1,5 @@
 name: build-firmware
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 jobs:
