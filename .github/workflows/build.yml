@@ -22,7 +22,10 @@ jobs:
 
       - name: Build
         run: cargo build --release
-
+      - run: |
+          cargo install esp-generate --locked
+          esp-generate --chip esp32s2 -o alloc -o wifi -o embassy --headless probe
+          cat probe/Cargo.toml
       - name: Tạo file .bin gộp (bootloader + partition + app)
         run: |
           espflash save-image --chip esp32s2 --merge --flash-size 4mb \
