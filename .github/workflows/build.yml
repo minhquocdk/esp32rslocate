@@ -16,10 +16,6 @@ jobs:
           ldproxy: false
 
       - uses: Swatinem/rust-cache@v2
-      - run: |
-          cargo install esp-generate --locked
-          esp-generate --chip esp32s2 -o alloc -o wifi -o embassy --headless probe
-          cat probe/Cargo.toml
       - name: Cài espflash
         run: cargo install espflash --locked
 
