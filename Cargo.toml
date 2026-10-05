@@ -1,22 +1,18 @@
-# KHUYẾN NGHỊ: tạo khung bằng
-#   cargo install esp-generate
-#   esp-generate --chip esp32s2 wifi-tracker   (chọn: unstable-hal, alloc, wifi, embassy)
-# rồi copy src/main.rs vào, để tool tự chọn bộ version khớp nhau.
-# Các version dưới đây chỉ mang tính tham khảo.
-
 [package]
 name = "wifi-tracker"
 version = "0.1.0"
 edition = "2021"
 
+# Bộ version cùng thế hệ esp-hal 1.0 / esp-radio 0.17 (API: esp_radio::init() + wifi::new(&ctrl, WIFI, cfg)).
+# Dùng "~" để khoá minor, tránh cargo kéo lên 1.0.0-beta (API khác).
 [dependencies]
-esp-hal = { version = "1.0", features = ["esp32s2", "unstable"] }
-esp-rtos = { version = "0.1", features = ["esp32s2", "embassy", "esp-radio"] }
-esp-radio = { version = "0.15", features = ["esp32s2", "wifi", "unstable"] }
-esp-alloc = "0.9"
-esp-storage = { version = "0.8", features = ["esp32s2"] }
-esp-backtrace = { version = "0.18", features = ["esp32s2", "panic-handler"] }
-esp-bootloader-esp-idf = { version = "0.3", features = ["esp32s2"] }
+esp-hal = { version = "~1.0", features = ["esp32s2", "unstable"] }
+esp-rtos = { version = "~0.2", features = ["esp32s2", "embassy", "esp-radio", "esp-alloc"] }
+esp-radio = { version = "~0.17", features = ["esp32s2", "wifi", "unstable", "esp-alloc"] }
+esp-alloc = { version = "~0.9", features = ["esp32s2"] }
+esp-storage = { version = "~0.8", features = ["esp32s2"] }
+esp-backtrace = { version = "~0.18", features = ["esp32s2", "panic-handler"] }
+esp-bootloader-esp-idf = { version = "~0.4", features = ["esp32s2"] }
 embedded-storage = "0.3"
 embassy-executor = { version = "0.9", features = ["task-arena-size-20480"] }
 embassy-net = { version = "0.7", features = ["tcp", "dns", "dhcpv4", "medium-ethernet"] }
@@ -30,12 +26,3 @@ opt-level = "s"
 lto = "fat"
 codegen-units = 1
 debug = 2
-
-# ---------------- partitions.csv (file riêng, flash bằng espflash --partition-table) ----------------
-# # Name,   Type, SubType, Offset,   Size
-# nvs,      data, nvs,     0x9000,   0x6000
-# phy_init, data, phy,     0xf000,   0x1000
-# factory,  app,  factory, 0x10000,  0x300000
-# wifilog,  data, 0x40,    0x310000, 0x40000
-#
-# Flash: espflash flash --partition-table partitions.csv target/xtensa-esp32s2-none-elf/release/wifi-tracker
