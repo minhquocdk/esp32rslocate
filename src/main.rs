@@ -29,8 +29,8 @@ use static_cell::StaticCell;
 esp_bootloader_esp_idf::esp_app_desc!();
 
 // ====== CẤU HÌNH ======
-const HOME_SSID: &str = "WIFI_NHA";
-const HOME_PASS: &str = "matkhau";
+const HOME_SSID: &str = "orangepi";
+const HOME_PASS: &str = "das2022@";
 const API_URL: &str = "http://api.example.com/locate"; // HTTPS cần thêm esp-mbedtls
 const SCAN_INTERVAL_S: u64 = 15 * 60;
 const MAX_AP: usize = 12;
