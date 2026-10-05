@@ -11,7 +11,7 @@ esp-rtos = { version = "~0.2", features = ["esp32s2", "embassy", "esp-radio", "e
 esp-radio = { version = "~0.17", features = ["esp32s2", "wifi", "unstable", "esp-alloc"] }
 esp-alloc = { version = "~0.9", features = ["esp32s2"] }
 esp-storage = { version = "~0.8", features = ["esp32s2"] }
-esp-println = { version = "~0.16", features = ["esp32s2", "uart"] }
+esp-println = { version = "~0.16", default-features = false, features = ["esp32s2", "uart", "critical-section"] }
 esp-backtrace = { version = "~0.18", features = ["esp32s2", "panic-handler", "println"] }
 esp-bootloader-esp-idf = { version = "~0.4", features = ["esp32s2"] }
 embedded-storage = "0.3"
