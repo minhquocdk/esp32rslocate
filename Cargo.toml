@@ -14,7 +14,7 @@ esp-storage = { version = "~0.8", features = ["esp32s2"] }
 esp-backtrace = { version = "~0.18", features = ["esp32s2", "panic-handler"] }
 esp-bootloader-esp-idf = { version = "~0.4", features = ["esp32s2"] }
 embedded-storage = "0.3"
-embassy-executor = { version = "0.9", features = ["task-arena-size-20480"] }
+embassy-executor = "0.9"
 embassy-net = { version = "0.7", features = ["tcp", "dns", "dhcpv4", "medium-ethernet"] }
 embassy-time = "0.5"
 embassy-futures = "0.1"
