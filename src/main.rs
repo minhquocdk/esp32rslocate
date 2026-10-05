@@ -21,7 +21,7 @@ use esp_hal::{
     rtc_cntl::{sleep::TimerWakeupSource, Rtc},
     timer::timg::TimerGroup,
 };
-use esp_radio::wifi::{ClientConfig, ModeConfig, ScanConfig, WifiController}; // CHECK
+use esp_radio::wifi::{ClientConfig, ModeConfig, ScanConfig, WifiController};
 use esp_storage::FlashStorage;
 use reqwless::{client::HttpClient, headers::ContentType, request::{Method, RequestBuilder}};
 use static_cell::StaticCell;
@@ -138,11 +138,10 @@ impl<'a> Log<'a> {
 }
 
 // ====== QUÉT WI-FI ======
-fn scan(controller: &mut WifiController<'_>, rtc_s: u32) -> (Record, bool) {
+async fn scan(controller: &mut WifiController<'_>, rtc_s: u32) -> (Record, bool) {
     let mut rec = Record { seq: 0, rtc_s, count: 0, aps: [Ap { bssid: [0; 6], rssi: 0, ch: 0 }; MAX_AP] };
     let mut at_home = false;
-    // CHECK: tên hàm scan blocking thay đổi theo version (scan_with_config_sync / scan_n ...)
-    if let Ok(list) = controller.scan_with_config_sync(ScanConfig::default().with_max(20)) {
+    if let Ok(list) = controller.scan_with_config_async(ScanConfig::default().with_max(20)).await {
         // list đã sắp theo RSSI giảm dần -> giữ MAX_AP cái mạnh nhất
         for ap in list.iter() {
             if ap.ssid.as_str() == HOME_SSID {
@@ -234,7 +233,7 @@ macro_rules! mk_static {
 }
 
 #[esp_rtos::main] // CHECK: tên macro/attr tuỳ version (esp_rtos::main hoặc esp_hal_embassy::main)
-async fn main(spawner: Spawner) {
+async fn main(spawner: Spawner) -> ! {
     let p = esp_hal::init(esp_hal::Config::default().with_cpu_clock(CpuClock::max()));
     esp_alloc::heap_allocator!(size: 72 * 1024);
 
@@ -248,12 +247,12 @@ async fn main(spawner: Spawner) {
     let (mut controller, ifaces) =
         esp_radio::wifi::new(radio, p.WIFI, Default::default()).unwrap(); // CHECK
     controller.set_config(&ModeConfig::Client(ClientConfig::default())).unwrap();
-    controller.start().unwrap();
+    controller.start_async().await.unwrap();
 
     let mut log = Log { flash: FlashStorage::new(p.FLASH) };
 
     // 1) Quét + lưu flash
-    let (rec, at_home) = scan(&mut controller, now_s);
+    let (rec, at_home) = scan(&mut controller, now_s).await;
     log.append(rec);
 
     // 2) Thấy Wi-Fi nhà -> kết nối + upload
