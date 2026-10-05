@@ -1,0 +1,37 @@
+name: build-firmware
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cài Rust toolchain cho Xtensa (ESP32-S2)
+        uses: esp-rs/xtensa-toolchain@v1.6
+        with:
+          default: true
+          buildtargets: esp32s2
+          ldproxy: false
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Cài espflash
+        run: cargo install espflash --locked
+
+      - name: Build
+        run: cargo build --release
+
+      - name: Tạo file .bin gộp (bootloader + partition + app)
+        run: |
+          espflash save-image --chip esp32s2 --merge --flash-size 4mb \
+            --partition-table partitions.csv \
+            target/xtensa-esp32s2-none-elf/release/wifi-tracker firmware.bin
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: firmware
+          path: firmware.bin
