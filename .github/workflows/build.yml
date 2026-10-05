@@ -18,7 +18,28 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Cài espflash
         run: cargo install espflash --locked
+      - name: In phiên bản công cụ
+        run: |
+          rustc --version --verbose
+          cargo --version
+          rustup toolchain list
+          espflash --version
 
+      - name: Resolve dependency và in phiên bản các crate
+        run: |
+          cargo generate-lockfile
+          echo "=== Các crate esp / embassy / reqwless ==="
+          grep -A1 -E '^name = "(esp-|embassy-|reqwless|static_cell|embedded-storage|xtensa|smoltcp)' Cargo.lock \
+            | grep -v '^--' | paste - - | sed 's/name = //; s/version = //'
+          echo "=== Crate bị trùng nhiều phiên bản ==="
+          cargo tree -d || true
+
+      - name: Lưu Cargo.lock
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cargo.lock
+          path: Cargo.lock
       - name: Build
         run: cargo build --release
 
